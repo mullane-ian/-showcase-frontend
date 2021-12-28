@@ -12,8 +12,9 @@ import { useGesture} from "@use-gesture/react"
 let colors = []
 function Scenee({ index, ...props }) {
     const [spring, set] = useSpring(() => ({ scale: [0.8, 0.8, 0.8], position: [0, 0, 0], rotation: [0, 0, 0], config: { friction: 10 } }))
-    const { size} = useThree()
-  const [width, height] = useAspect('cover', .001, 41)
+    const { size,viewport} = useThree()
+    let w = viewport.width
+    const [width, height] = useAspect('cover', .001, 41)
   let mobile = size.width <= 1024
   props.func(mobile);
   const [onClick, x, y, factor] = useActive(width, height, false, 60, 300.5)
@@ -32,6 +33,29 @@ function Scenee({ index, ...props }) {
 
 //    const [hovered, setHover] = useState(false)
 
+const [punkListData, setPunkListData] = useState([]);
+
+useEffect( ()=>{
+
+
+  const getMyNfts = async ()=>{
+
+   const openseaData = await axios('https://showcase-back.herokuapp.com/',{
+
+   headers: {
+    'Access-Control-Allow-Origin': '*'
+   }
+   })
+   
+   setPunkListData(openseaData.data.assets)
+  }
+  return getMyNfts()
+}, [])
+
+
+console.log(w)
+
+
   const { nodes, materials } = useGLTF('0001-transformed.glb')
 
 
@@ -45,9 +69,9 @@ function Scenee({ index, ...props }) {
         onScrollChange(e.target.value);
       
 
-        val = (e.target.value) * 0.0024
+        val = (e.target.value) * 0.01
 
-          // setTimeout(() => { e.target.value=''}, 500);
+          //  setTimeout(() => { e.target.value=''}, 500);
     };
     const bind = useGesture({
 
@@ -57,8 +81,9 @@ function Scenee({ index, ...props }) {
       // }
       onDrag:({pressed})=>{
        
-         set({ scale: pressed ? [1.5, 2, 1.5] : [.8,.8, .8] })
-      }
+         set({ scale: pressed ? [index%2===0?2.5:1.5, index%2===0?3:2, index%2===0?2.5:1.5] : [.8,.8, .8] })
+        
+        }
 
     })
 
@@ -67,23 +92,24 @@ function Scenee({ index, ...props }) {
 
      useFrame((state) =>{
           if(val)scroll.scroll.current = val
-          // ref.current.position.x = scroll.offset * 2000
+          ref.current.position.x = scroll.offset * -2000
           // ref.current.position.x = scroll.offset * 4000 * 2.1
-          ref.current.position.x = scroll.offset * 8400
+          // ref.current.position.x = scroll.offset * 840
      })
 
      let color = randomColor();
+    
     //  colors.push(color)
   return (
     <>
-    {/* <Html className="input-field">
+{mobile && index ===0?    <Html position={[(w*.015) + 2,0,4]}  transform style={{width:'100vw'}} className="input-field">
         <div className="search-container">
       <fieldset >
         <legend> s e a r c h</legend>
         <input className="input-search" type="text"  onChange={handleChange} />
       </fieldset>
     </div>
-    </Html> */}
+    </Html>:null}
 
     <group ref={ref} dispose={null}  >
 
@@ -93,7 +119,7 @@ function Scenee({ index, ...props }) {
        {...bind()}
 
      onClick={onClick}
-  geometry={nodes.Cube.geometry} ref={mesh} name='${index}'  position={[1+(-index * 20), 2, -4]}
+  geometry={nodes.Cube.geometry} ref={mesh} name='${index}'  position={[1+(index * 20), 2, -4]}
     castShadow
 
     >
@@ -101,7 +127,7 @@ function Scenee({ index, ...props }) {
       } />
     </a.mesh>
 
-       <Text  color={colors[index]}font={tall} fontSize={6}  position={[1+(-index * 20), 1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+       <Text  color={colors[index]}font={tall} fontSize={6}  position={[1+(index * 20), 1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         #{index}
         </Text>
 
@@ -111,14 +137,21 @@ function Scenee({ index, ...props }) {
 
         ***************************************************************** */}
 
-        <Text  color={colors[index]}font={tall} fontSize={1}  position={[1+(-index * 20), 0, 3]} rotation={[-Math.PI / 2, 0, 0]}>
+        <Text  color={colors[index]}font={tall} fontSize={1}  position={[1+(index * 20), 0, 3]} rotation={[-Math.PI / 2, 0, 0]}>
         count display here
         </Text>
-               <Text color={colors[index]} font={tall} fontSize={3}  position={[1+(-index * 20),  mobile?10:5, mobile?-20:-15]} rotation={[0, 0, 0]}>
+               <Text color={colors[index]} font={tall} fontSize={3}  position={[1+(index * 20),  mobile?10:5, mobile?-20:-15]} rotation={[0, 0, 0]}>
         {colors[index]}
         </Text>
-        <Text ref={owner} fillOpacity={1} color={colors[index]} font={tall} fontSize={3}  position={[1+(-index * 20), mobile?25:20, -15]} rotation={[0, 0, 0]}>
-        owner
+        <Text ref={owner} fillOpacity={1} color={colors[index]} font={tall} fontSize={3}  position={[1+(index * 20), mobile?25:20, -15]} rotation={[0, 0, 0]}>
+        OWNED BY
+        </Text>
+        <Text ref={owner} fillOpacity={1} color={colors[index]}  fontSize={0.8}  position={[1+(index * 20), mobile?20:17, -15]} rotation={[0, 0, 0]}>
+        { punkListData[0]?
+          punkListData[0].owner.address:
+          'null'
+          
+        }
         </Text>
 
 
@@ -133,27 +166,27 @@ export default function App({ speed = 1, count = 101 ,depth = 80, easing = (x) =
     mobile = data// LOGS DATA FROM CHILD (My name is Dean Winchester... &)
 
   }
-  const [punkListData, setPunkListData] = useState([]);
+  // const [punkListData, setPunkListData] = useState([]);
 
-  useEffect( ()=>{
+  // useEffect( ()=>{
 
 
-    const getMyNfts = async ()=>{
+  //   const getMyNfts = async ()=>{
 
-     const openseaData = await axios('https://showcase-back.herokuapp.com/',{
+  //    const openseaData = await axios('https://showcase-back.herokuapp.com/',{
 
-     headers: {
-      'Access-Control-Allow-Origin': '*'
-     }
-     })
+  //    headers: {
+  //     'Access-Control-Allow-Origin': '*'
+  //    }
+  //    })
      
-     setPunkListData(openseaData.data.assets)
-    }
-    return getMyNfts()
-  }, [])
+  //    setPunkListData(openseaData.data.assets)
+  //   }
+  //   return getMyNfts()
+  // }, [])
 
-
-  console.log(punkListData)
+  // if(punkListData[0]){
+  //   console.log(punkListData[1].owner.address)}
 
 
  return (
@@ -161,8 +194,8 @@ export default function App({ speed = 1, count = 101 ,depth = 80, easing = (x) =
 
     {/* <Canvas concurrent dpr={[1, 1.5]} shadows camera={{rotation:[-.31,0,0], position: [1, 10.133,20.67], fov: 30 }} gl={{ alpha: false }}> */}
     <Canvas concurrent dpr={[1, 1.5]} shadows camera={{rotation:[-.31,0,0], position: [1, 10.133,20.67], fov: 45 }} gl={{ alpha: true, antialias:false }}>
-      <fog attach="fog" args={['#ffffff', 20, 60]} />
-      <color attach="background" args={['#fffff7']} />
+      <fog attach="fog" args={['#000000', 20, 60]} />
+      <color attach="background" args={['#000000']} />
       <ambientLight intensity={0.2} />
       <directionalLight castShadow intensity={1} position={[0, 6, 0]} shadow-mapSize={[1024, 1024]}>
         <orthographicCamera attach="shadow-camera" left={-20} right={20} top={20} bottom={0} />
@@ -172,13 +205,13 @@ export default function App({ speed = 1, count = 101 ,depth = 80, easing = (x) =
         global={false} // Spin globally or by dragging the model
         snap={true} // Snap-back to center (can also be a spring config)
         speed={0.5} // Speed factor
-        zoom={mobile?.001:0.2} // Zoom factor when half the polar-max is reached
+        zoom={mobile?.01:0.3} // Zoom factor when half the polar-max is reached
         rotation={[-0.8, 0, 0]} // Default rotation
         polar={[Math.PI/4, 0]} // Vertical limits
         azimuth={[-Math.PI/3 , Math.PI/6]} // Horizontal limits
       >
 
-        <ScrollControls pages={40} >
+        <ScrollControls pages={30} horizontal={true}>
    
           {Array.from({ length: count }, (_, i) =>
             <Scenee func={pull_data} index = {i} key={i}  onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}/> )}
@@ -186,7 +219,7 @@ export default function App({ speed = 1, count = 101 ,depth = 80, easing = (x) =
         </ScrollControls>
 
         <mesh position={[0, -1.5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[260, 260,50,50]} />
+          <planeGeometry args={[1000, 1000,50,50]} />
           <MeshReflectorMaterial
           // wireframe={true}
             blur={[400, 100]}
@@ -339,7 +372,9 @@ colors = [
     "#e070d3",
     "#03b26f",
     "#8583e2",
-    "#4efc2f"
+    "#4efc2f",
+
+    
 ]
 
 
