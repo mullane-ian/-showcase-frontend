@@ -1,0 +1,28 @@
+{
+  "name": "showcasedilds",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-spring/three": "^9.3.1",
+    "@react-three/drei": "^8.2.1",
+    "@react-three/fiber": "^7.0.24",
+    "@types/three": "^0.135.0",
+    "@use-gesture/react": "^10.2.4",
+    "axios": "^0.24.0",
+    "color": "^4.1.0",
+    "leva": "^0.9.16",
+    "random": "^3.0.6",
+    "randomcolor": "^0.6.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "three": "^0.135.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^1.0.7",
+    "vite": "^2.7.2"
+  }
+}
