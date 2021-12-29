@@ -8,8 +8,50 @@ import { useSpring, a } from "@react-spring/three";
 const AnimatedWobbleMaterial = a(MeshWobbleMaterial)
 import tall from './tall.otf'
 import { useGesture} from "@use-gesture/react"
-// this.mobile = false
+
+
 let colors = []
+
+
+
+
+//********************************** */
+
+//Create account array
+
+//********************************** */
+
+const countArray = new Array(101).fill(0)
+
+//For Fiver Dev : 'index' is the mesh that has been clicked (0-100)
+//Count array increases by one when the different meshes are clicked
+
+function useActive(width, height, initial, minFactor, maxFactor, index) {
+
+
+  const [active, set] = useState(initial)
+  // converts the active flag into a animated 0-1 spring
+  const { f } = useSpring({ f: Number(active), from: { f: Number(!initial) }, config: { mass: 20, tension: 200, friction: 105 } })
+  // interpolate x/y scale
+  const x = f.to([0, 5], [width / minFactor, width / maxFactor])
+  const y = f.to([0, 5], [height / minFactor, height / maxFactor])
+  // factor interpolates from nothing to wobbly to nothing
+  const factor = f.to([0, 0.1, 0.5, 0.9, 1], [0, 1, 2, 1, 0])
+  return [(e) => {
+    (e.stopPropagation(), set(!active))
+
+    //Here is where we get the count for each item
+    countArray[index] += 1
+    console.log(index)
+    console.log(countArray)
+  }
+  , x, y, factor]
+
+}
+
+
+
+console.log(countArray)
 function Scenee({ index, ...props }) {
     const [spring, set] = useSpring(() => ({ scale: [0.8, 0.8, 0.8], position: [0, 0, 0], rotation: [0, 0, 0], config: { friction: 10 } }))
     const { size,viewport} = useThree()
@@ -17,119 +59,88 @@ function Scenee({ index, ...props }) {
     const [width, height] = useAspect('cover', .001, 41)
   let mobile = size.width <= 1024
   props.func(mobile);
-  const [onClick, x, y, factor] = useActive(width, height, false, 60, 300.5)
+
+  //this is where I pass in the index (item that is clicked) to the function
+  const [onClick, x, y, factor,] = useActive(width, height, false, 60, 300.5,index)
+  
+  
   const mesh = useRef()
   const owner = useRef()
   const ref = useRef()
 
-  // useEffect(() => {
-  //   mesh.current.scale
-  //   return () => {
-  //     cleanup
-  //   }
-  // }, [input])
 
-   const scroll = useScroll()
-
-//    const [hovered, setHover] = useState(false)
-
-const [punkListData, setPunkListData] = useState([]);
-
-useEffect( ()=>{
-
-
+  const scroll = useScroll()
+  const [punkListData, setPunkListData] = useState([]);
+  useEffect( ()=>{
   const getMyNfts = async ()=>{
-
-   const openseaData = await axios('https://showcase-back.herokuapp.com/',{
-
+  const openseaData = await axios('https://showcase-back.herokuapp.com/',{
    headers: {
     'Access-Control-Allow-Origin': '*'
    }
    })
-   
    setPunkListData(openseaData.data.assets)
   }
   return getMyNfts()
 }, [])
 
 
-console.log(w)
-
-
   const { nodes, materials } = useGLTF('0001-transformed.glb')
-
-
-      const onScrollChange = () => {
-
-
-  };
-
     let val
     const handleChange = e => {
         onScrollChange(e.target.value);
-      
-
         val = (e.target.value) * 0.01
-
-          //  setTimeout(() => { e.target.value=''}, 500);
+        //  setTimeout(() => { e.target.value=''}, 500);
     };
     const bind = useGesture({
-
-      // onHover: ({ hovering }) => {
-      //   set({ scale: hovering ? [2.5, 3.5, 2.5] : [4, 3, 4] })
-
-      // }
       onDrag:({pressed})=>{
-       
          set({ scale: pressed ? [index%2===0?2.5:1.5, index%2===0?3:2, index%2===0?2.5:1.5] : [.8,.8, .8] })
-        
         }
 
     })
 
 
-    //add useEffect to do this
-
      useFrame((state) =>{
           if(val)scroll.scroll.current = val
           ref.current.position.x = scroll.offset * -2000
-          // ref.current.position.x = scroll.offset * 4000 * 2.1
-          // ref.current.position.x = scroll.offset * 840
+          // console.log(countArray)
      })
 
      let color = randomColor();
     
-    //  colors.push(color)
+  
   return (
     <>
-{mobile && index ===0?    <Html position={[(w*.015) + 2,0,4]}  transform style={{width:'100vw'}} className="input-field">
+{/* {mobile && index ===0?    <Html position={[(w*.015) + 2,0,4]}  transform style={{width:'100vw'}} className="input-field">
         <div className="search-container">
       <fieldset >
         <legend> s e a r c h</legend>
         <input className="input-search" type="text"  onChange={handleChange} />
       </fieldset>
     </div>
-    </Html>:null}
+    </Html>:null} */}
+
 
     <group ref={ref} dispose={null}  >
-
-
-      <a.mesh
+      <a.mesh  
         {...spring}
-       {...bind()}
+        {...bind()}
+        onClick={onClick}
+        geometry={nodes.Cube.geometry} 
+        ref={mesh} name='${index}'  
+        position={[1+(index * 20), 2, -4]}
+        castShadow
+      >
+      <AnimatedWobbleMaterial 
+        color={colors[index]} 
+        factor={factor} 
+        speed={20} />
+      </a.mesh>
 
-     onClick={onClick}
-  geometry={nodes.Cube.geometry} ref={mesh} name='${index}'  position={[1+(index * 20), 2, -4]}
-    castShadow
-
-    >
-      <AnimatedWobbleMaterial color={colors[index]} factor={factor} speed={20
-      } />
-    </a.mesh>
-
-       <Text  color={colors[index]}font={tall} fontSize={6}  position={[1+(index * 20), 1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <Text  color={colors[index]}font={tall} fontSize={6}  position={[1+(index * 20), 1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         #{index}
-        </Text>
+      </Text>
+
+
 
         {/* *****************************************************************
         
@@ -138,20 +149,24 @@ console.log(w)
         ***************************************************************** */}
 
         <Text  color={colors[index]}font={tall} fontSize={1}  position={[1+(index * 20), 0, 3]} rotation={[-Math.PI / 2, 0, 0]}>
-        count display here
+        count display here {/*Display*/}
         </Text>
-               <Text color={colors[index]} font={tall} fontSize={3}  position={[1+(index * 20),  mobile?10:5, mobile?-20:-15]} rotation={[0, 0, 0]}>
-        {colors[index]}
+
+
+
+
+        
+        <Text color={colors[index]} font={tall} fontSize={3}  position={[1+(index * 20),  mobile?10:5, mobile?-20:-15]} rotation={[0, 0, 0]}>
+          {colors[index]}
         </Text>
         <Text ref={owner} fillOpacity={1} color={colors[index]} font={tall} fontSize={3}  position={[1+(index * 20), mobile?25:20, -15]} rotation={[0, 0, 0]}>
-        OWNED BY
+          OWNED BY
         </Text>
         <Text ref={owner} fillOpacity={1} color={colors[index]}  fontSize={0.8}  position={[1+(index * 20), mobile?20:17, -15]} rotation={[0, 0, 0]}>
-        { punkListData[0]?
-          punkListData[0].owner.address:
-          'null'
-          
-        }
+          { punkListData[0]?
+            punkListData[0].owner.address:
+            'null'
+          }
         </Text>
 
 
@@ -248,20 +263,7 @@ export default function App({ speed = 1, count = 101 ,depth = 80, easing = (x) =
 }
 
 
-function useActive(width, height, initial, minFactor, maxFactor) {
 
-
-  const [active, set] = useState(initial)
-  // converts the active flag into a animated 0-1 spring
-  const { f } = useSpring({ f: Number(active), from: { f: Number(!initial) }, config: { mass: 20, tension: 200, friction: 105 } })
-  // interpolate x/y scale
-  const x = f.to([0, 5], [width / minFactor, width / maxFactor])
-  const y = f.to([0, 5], [height / minFactor, height / maxFactor])
-  // factor interpolates from nothing to wobbly to nothing
-  const factor = f.to([0, 0.1, 0.5, 0.9, 1], [0, 1, 2, 1, 0])
-  return [(e) => (e.stopPropagation(), set(!active)), x, y, factor]
-
-}
 
 
 
