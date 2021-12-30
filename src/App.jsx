@@ -25,7 +25,7 @@ import tall from "./tall.otf";
 import { useGesture } from "@use-gesture/react";
 
 let colors = [];
-let backenduri = "http://localhost:30002/meshitemclicked";
+let backenduri = "https://showcase-back.herokuapp.com/meshitemclicked";
 
 //********************************** */
 
@@ -35,8 +35,6 @@ let backenduri = "http://localhost:30002/meshitemclicked";
 
 let countArray = new Array(101).fill(0);
 
-//For Fiver Dev : 'index' is the mesh that has been clicked (0-100)
-//Count array increases by one when the different meshes are clicked
 
 function useActive(width, height, initial, minFactor, maxFactor, index) {
   const [active, set] = useState(initial);
@@ -84,7 +82,6 @@ function Scenee({ index, ...props }) {
   let mobile = size.width <= 1024;
   props.func(mobile);
 
-  //this is where I pass in the index (item that is clicked) to the function
   const [onClick, x, y, factor] = useActive(
     width,
     height,
@@ -124,7 +121,6 @@ function Scenee({ index, ...props }) {
   useFrame((state) => {
     if (val) scroll.scroll.current = val;
     ref.current.position.x = scroll.offset * -2000;
-    // console.log(countArray)
   });
 
   let color = randomColor();
@@ -168,18 +164,13 @@ function Scenee({ index, ...props }) {
           #{index}
         </Text>
 
-        {/* *****************************************************************
-        
-        Fiverr Developer: This is where I need the click count to display
-
-        ***************************************************************** */}
-
+  
         <Text
           color={colors[index]}
           font={tall}
-          fontSize={1}
-          position={[1 + index * 20, 0, 3]}
-          rotation={[-Math.PI / 2, 0, 0]}
+          fontSize={6}
+          position={[1 + index * 20, mobile ? 15 : 10, mobile ? -20 : -15]}
+          rotation={[0, 0, 0]}
         >
           {countArray[index]}
         </Text>
@@ -239,7 +230,6 @@ export default function App({
   }, []);
   useEffect(() => {
     axios.get(backenduri).then((data) => {
-      console.log("useeffect called");
       countArray = data.data;
     });
   }, []);
@@ -316,8 +306,7 @@ export default function App({
                   index={i}
                   key={i}
                   punkListData={punkListData}
-                  onPointerOver={() => setHover(true)}
-                  onPointerOut={() => setHover(false)}
+                
                 />
               ))}
             </ScrollControls>
