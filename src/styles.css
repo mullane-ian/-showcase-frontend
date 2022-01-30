@@ -1,7 +1,4 @@
-@font-face {
-    font-family: tall;
-    src: url("tall.otf") format("opentype");
-}
+@import url('https://fonts.googleapis.com/css2?family=Nova+Round&family=Rubik+Beastly&display=swap');
 * {
    touch-action: none;
     box-sizing: border-box;
@@ -24,6 +21,9 @@
     user-select: none;
     outline: none;
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile*/
+    overflow: hidden;
+    background: #706772;
+
 
   }
 
@@ -31,18 +31,23 @@
     position: fixed;
     overflow: hidden;
     overscroll-behavior-y: none;
-    font-family: tall,-apple-system, BlinkMacSystemFont, avenir next, avenir, helvetica neue, helvetica, ubuntu, roboto, noto, segoe ui, arial, sans-serif;
+    font-family: 'Nova Round', cursive;
     color: black;
   }
 
   html {
     overflow: hidden;
     height: 100%;
+
   }
 
   body {
     height: 100%;
     overflow: auto;
+  }
+
+html::-webkit-scrollbar {
+    display: none;
   }
 
 

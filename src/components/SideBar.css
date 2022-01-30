@@ -1,0 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+:root {
+  --black: #be24cc;
+  --grey: #a4b2bc;
+  --white: #fff;
+  --background: rgba(137, 171, 245, 0.37);
+}
+
+.sidebar-container{
+    z-index: 100;
+    overflow-x: visible !important ;
+    max-height: 100vh;
+    max-width: 100vw;
+}
